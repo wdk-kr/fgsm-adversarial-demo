@@ -1,14 +1,15 @@
+
+# 베이스 이미지
 FROM python:3.12.9-slim
 
+# 시스템 패키지 설치
 RUN apt-get update && \
-    apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
-        build-essential \
         libglib2.0-0 \
         libsm6 \
         libxext6 \
-        libxrender-dev \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+        libxrender-dev && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
