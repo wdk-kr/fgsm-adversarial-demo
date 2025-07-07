@@ -3,6 +3,7 @@ import tensorflow as tf
 import numpy as np
 from PIL import Image
 
+
 st.set_page_config(page_title="FGSM 적대적 공격 체험", layout="wide")
 st.title("🧠 FGSM 적대적 공격 체험")
 
@@ -37,15 +38,8 @@ def load_model():
 
 model = load_model()
 
-with tf.GradientTape() as tape:
-    tape.watch(input_tensor)
-    prediction = model(input_tensor)
-    label = tf.argmax(prediction[0])
-    onehot = tf.one_hot(label, 1000)
-    loss = tf.keras.losses.categorical_crossentropy(onehot[None, ...], prediction)
 
-grad = tape.gradient(loss, input_tensor)
-adv_tensor = tf.clip_by_value(input_tensor + epsilon * tf.sign(grad), -1, 1)
+
 
 def decode(tensor):
     preds = model(tensor)
@@ -60,7 +54,17 @@ col1, col2 = st.columns(2)
 col1.subheader("원본 이미지")
 col1.image(restore(input_tensor), caption=decode(input_tensor), use_container_width=True)
 col2.subheader("공격 이미지")
-col2.image(restore(adv_tensor), caption=decode(adv_tensor), use_container_width=True)
+with col2:
+    with st.spinner("공격 이미지 생성 중..."):
+        with tf.GradientTape() as tape:
+            tape.watch(input_tensor)
+            prediction = model(input_tensor)
+            label = tf.argmax(prediction[0])
+            onehot = tf.one_hot(label, 1000)
+            loss = tf.keras.losses.categorical_crossentropy(onehot[None, ...], prediction)
+        grad = tape.gradient(loss, input_tensor)
+        adv_tensor = tf.clip_by_value(input_tensor + epsilon * tf.sign(grad), -1, 1)
+        col2.image(restore(adv_tensor), caption=decode(adv_tensor), use_container_width=True)
 
 # 푸터: 사이트 맨 하단에 자연스럽게 표시
 st.markdown(
@@ -95,7 +99,8 @@ st.markdown(
     }
     </style>
     <div class="footer">
-        Made with ❤️ by <a href="https://github.com/wdk-kr" target="_blank">완두콩</a>
+        Made with ❤️ by <a href="https://github.com/wdk-kr" target="_blank">완두콩</a><br>
+        <a href="https://github.com/wdk-kr/fgsm-adversarial-demo" target="_blank">🔗 fgsm-adversarial-demo GitHub 바로가기</a>
     </div>
     """,
     unsafe_allow_html=True,
