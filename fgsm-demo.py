@@ -3,13 +3,8 @@ import tensorflow as tf
 import numpy as np
 from PIL import Image
 
-
 st.set_page_config(page_title="FGSM 적대적 공격 체험", layout="wide")
 st.title("🧠 FGSM 적대적 공격 체험")
-
-
-# ...existing code...
-
 
 uploaded_file = st.file_uploader("이미지를 업로드하거나 아래 예제 이미지를 사용하세요", type=["jpg", "jpeg", "png"])
 
@@ -30,16 +25,12 @@ input_tensor = tf.convert_to_tensor(
     tf.keras.applications.mobilenet_v2.preprocess_input(img_array)[None, ...]
 )
 
-
 @st.cache_resource
 def load_model():
     with st.spinner("모델을 다운로드 및 로딩 중입니다... (최초 1회만 소요)"):
         return tf.keras.applications.MobileNetV2(weights="imagenet")
 
 model = load_model()
-
-
-
 
 def decode(tensor):
     preds = model(tensor)
@@ -66,7 +57,6 @@ with col2:
         adv_tensor = tf.clip_by_value(input_tensor + epsilon * tf.sign(grad), -1, 1)
         col2.image(restore(adv_tensor), caption=decode(adv_tensor), use_container_width=True)
 
-# 푸터: 사이트 맨 하단에 자연스럽게 표시
 st.markdown(
     """
     <style>
